@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
+    <link rel="stylesheet" type="text/css" href="/resources/jquery-ui.css" />
+    <script type="text/javascript" src="/resources/jquery.min.js"></script>
+    <script type="text/javascript" src="/resources/jquery-ui.js"></script>
+    <script type="text/javascript" src="/resources/jquery.json-2.3.min.js"></script>
+    <script type="text/javascript" src="/resources/sjcl.js"></script>
+    <script type="text/javascript" src="/resources/cryptojs/rollups/sha256.js"></script>
+    <script type="text/javascript" src="/js/globals.js"></script>
+    <script type="text/javascript" src="/js/login.js"></script>
+    <script type="text/javascript" src="/js/register.js"></script>
+  </head>
+  <body>
+    <!-- error messages -->
+    <div id="error"></div>
+
+    <!-- login and registration -->
+    <div id="logindiv">
+      <p>You must login to use PassBuddy. If you do not have one, register for one by picking a username and master password and clicking 'Register'.</p>
+      <label for="login_username">Username</label>
+      <input type="text" id="login_username" /><br/>
+      <label for="login_mp">Password</label>
+      <input type="password" id="login_mp" /><br/>
+      <button id="login_submit">Login</button>
+      <button id="register_submit">Register</button>
+    </div>
+  </body>
+</html>

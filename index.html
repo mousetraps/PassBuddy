@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/style.css" />
+    <link rel="stylesheet" type="text/css" href="/resources/jquery-ui.css" />
+    <script type="text/javascript" src="/resources/jquery.min.js"></script>
+    <script type="text/javascript" src="/resources/jquery-ui.js"></script>
+    <script type="text/javascript" src="/resources/jquery.json-2.3.min.js"></script>
+    <script type="text/javascript" src="/resources/sjcl.js"></script>
+    <script type="text/javascript" src="/resources/cryptojs/rollups/sha256.js"></script>
+    <script type="text/javascript" src="/js/globals.js"></script>
+    <script type="text/javascript" src="/js/create_account.js"></script>
+    <script type="text/javascript" src="/js/content.js"></script>
+  </head>
+  <body>
+    <!-- error messages -->
+    <div id="error"></div>
+
+    <!-- normal app use -->
+    <div id="greeting">
+    </div>
+
+    <div id="contentdiv">
+      <ul>
+	<li><a href="#own_accounts">My Accounts</a>
+	<li><a href="#granted_accounts">Accounts I Can Access</a>
+      </ul>
+      <div id="own_accounts">
+      </div>
+      <div id="granted_accounts">
+      </div>
+    </div>
+    <div id="logoutdiv">
+      <form action="/logout" method="get">
+	<button id="logout" type="submit">Logout</button>
+      </form>
+    </div>
+    <div id="create_account_options">
+      <div id="create_account_error"></div>
+      <label for="create_account_host">Website: </label>
+      <input id="create_account_host" type="text" /><br/>
+      <label for="create_account_username">Website Username: </label>
+      <input id="create_account_username" type="text" /><br/>
+      <label for="create_account_password">Website Password: </label>
+      <input id="create_account_password" type="password" /><br/>
+      <label for="create_account_master_password">Master password: </label>
+      <input id="create_account_master_password" type="password" /><br/>
+      <button id="create_account_submit">Add</button>
+      <button id="create_account_cancel">Cancel</button>
+    </div>
+  </body>
+</html>
