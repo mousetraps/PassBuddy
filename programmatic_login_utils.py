@@ -12,7 +12,7 @@
 
 from HTMLParser import HTMLParser
 from urllib import urlencode
-import urllib2
+import urllib2, json
 
 class PasswordFieldFinderHTMLParser(HTMLParser):
     form_tags = []
@@ -132,3 +132,62 @@ def visit(url, cookies):
     html = connection.read()
     return html
 
+
+
+# Ton of code copying from login because I'm lazy
+# Arguments: url to scrape
+# Returns: json with selector info for the login form, username field, and password field (e.g. "username_selector")
+def detect_login_form(url):
+    # instantiate the parser and fed it some HTML
+    parser = PasswordFieldFinderHTMLParser()
+    connection = urllib2.urlopen(url)
+    html = connection.read()
+    charset = 'utf-8'
+    html = html.decode(charset)
+    parser.feed(html)
+    form_attrs_index = None
+    form_attrs = None
+    username_attrs = None
+    password_attrs = None
+    other_fields = set()
+    for fi in range(len(parser.form_tags)):
+        (attrs, input_tags) = parser.form_tags[fi]
+        for tagi in range(len(input_tags)):
+            pattrs = input_tags[tagi]
+            if 'type' in pattrs and pattrs['type'] == 'password':
+                form_attrs = attrs
+                form_attrs_index = fi
+                for tagj in range(len(input_tags)):
+                    aattrs = input_tags[tagj]
+                    if 'type' in aattrs and aattrs['type'] == 'password':
+                        if password_attrs != None:
+                            # Two password fields is a sign of a register form
+                            # so reset to the starting point.
+                            form_attrs = None
+                            other_fields = set()
+                            username_attrs = None
+                            password_attrs = None
+                            break
+                        password_attrs = aattrs
+                        if tagj > 0:
+                            username_attrs = input_tags[tagj - 1]
+                            other_fields.remove(tagj - 1)
+                    else:
+                        other_fields.add(tagj)
+                break
+        if form_attrs != None:
+            break
+    res = {}
+    if "id" in form_attrs:
+        res["form_selector"] = {"type": "id", "value": form_attrs["id"]}
+    elif "name" in form_attrs:
+        res["form_selector"] = {"type": "name", "value": form_attrs["name"]}
+    if "id" in username_attrs:
+        res["username_selector"] = {"type": "id", "value": username_attrs["id"]}
+    elif "name" in username_attrs:
+        res["username_selector"] = {"type": "name", "value": username_attrs["name"]}
+    if "id" in password_attrs:
+        res["password_selector"] = {"type": "id", "value": password_attrs["id"]}
+    elif "name" in password_attrs:
+        res["password_selector"] = {"type": "name", "value": password_attrs["name"]}
+    return json.dumps(res)

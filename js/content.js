@@ -256,7 +256,7 @@ function createAccount(host, host_username, password, master_password) {
     return 1;
     */
 
-    $.post("/add_account", {"username": localStorage.getItem("username"), "host_url": host, "host_username": host_username, "password": mphash(master_password).toString()}, function(data) {
+    $.post("/add_account", {"username": localStorage.getItem("username"), "host_url": host, "host_username": host_username, "host_password": encrypt(password, master_password), "password": mphash(master_password).toString()}, function(data) {
 	    jdata = jQuery.parseJSON(data);
 	    if(jdata.status == "OK") {
 		// Store the encrypted password for this account in local storage

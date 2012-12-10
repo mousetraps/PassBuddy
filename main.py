@@ -16,7 +16,7 @@
 #
 import webapp2
 import json, hashlib, random, string, os
-import utils
+import utils, programmatic_login_utils
 import jinja2
 from models import *
 
@@ -37,6 +37,11 @@ class LoginRequiredHandler(webapp2.RequestHandler):
             super(LoginRequiredHandler, self).dispatch()
         else:
             self.abort(403)
+
+class DetectLoginFormHandler(webapp2.RequestHandler):
+    def get(self):
+        url = self.request.get("url")
+        self.response.out.write(programmatic_login_utils.detect_login_form(url))
 
 class MainHandler(CheckLoginHandler):
     def get(self):
@@ -103,7 +108,8 @@ class OwnAccountsHandler(LoginRequiredHandler):
           grantees = []
           for shared_account_record in SharedAccount.all().filter("account =", account_record):
             grantees += [shared_account_record.grantee.username] 
-          account = {"host_url": account_record.host_url, "host_username": account_record.host_username, "grantees": grantees}
+          # Note host_password will be encrypted with at least the user's master password. It should be sent back only encrypted with that.
+          account = {"host_url": account_record.host_url, "host_username": account_record.host_username, "host_password": account_record.host_password, "grantees": grantees}
           res += [account]
         resj = json.dumps({"status": "OK", "username": username, "accounts": res});
         self.response.write(resj)
@@ -225,5 +231,6 @@ app = webapp2.WSGIApplication([
     ('/add_account', AddAccountHandler),
     ('/remove_account', RemoveAccountHandler),
     ('/share', ShareAccountHandler),
-    ('/unshare', UnshareAccountHandler)
+    ('/unshare', UnshareAccountHandler),
+    ('/detect_login_form', DetectLoginFormHandler)
 ], debug=True)
