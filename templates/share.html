@@ -1,0 +1,70 @@
+{% extends "_base.html" %}
+
+        {% block title %}Share{% endblock %}
+
+        {% block scripts %}
+
+        <script type="text/javascript">
+
+            $(document).ready(function() {
+
+                $(document)
+                        .ajaxStart(function(){
+                            $("#spinner").show();
+                        })
+                        .ajaxStop(function() {
+                            $("#spinner").hide();
+                        });
+
+                ReloadAccountsTable();
+
+            });
+
+            function ReloadAccountsTable() {
+                $("#sharedAccountsTable").html($("#sharedAccountsTable").html()).load('/sharedTable');
+            }
+
+            function getPrivateKey() {
+
+                return $.get("/manage",
+                        {
+                            "action": "getPrivateKey"
+                        }
+                );
+            }
+
+            function decryptPassword(key) {
+
+                $.when(getPrivateKey().pipe(function(encryptedPrivateKey) {
+                    var privateKey = unpackPrivateKey(encryptedPrivateKey);
+                    return $.get("/decrypt",
+                            {
+                                "key": key,
+                                "p[]": privateKey.p,
+                                "q[]": privateKey.q,
+                                "d[]": privateKey.d
+                            });
+                })).done(function(msg) {
+                            alert(msg);
+                        });
+
+            }
+
+
+
+
+        </script>
+
+        {% endblock %}
+
+        {% block content %}
+
+        <h1>Accounts Shared with You:</h1>
+
+        <img src="/static/images/ajax-loader.gif" id="spinner" title="working...">
+
+        <div id="sharedAccountsTable">
+
+        </div>
+
+{% endblock %}
