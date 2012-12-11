@@ -1,25 +1,20 @@
-import webapp2
-
 import hashlib
 import base64
 import os
 from google.appengine.ext.webapp import template
-
 from google.appengine.ext import db
 from myapp.models import *
+from core import *
 
-from toolbox.appengine_utilities.sessions import *
-
-class LoginHandler(webapp2.RequestHandler):
+class LoginHandler(BaseHandler):
     def get(self):
 
         self.response.write(template.render('templates/login.html', {}))
 
     def post(self):
 
-        self.session = Session()
-
-        self.session.delete_item('username')
+        if 'username' in self.session:
+            del self.session['username']
 
         account = self.request.get('account')
         pwd = base64.b64encode(self.request.get('password'))
@@ -64,9 +59,10 @@ class LoginHandler(webapp2.RequestHandler):
                     template.render('templates/login.html',
                     {'error': "stop hackin'"}))
 
-class LogoutHandler(webapp2.RequestHandler):
+class LogoutHandler(BaseHandler):
+
     def get(self):
-        self.session = Session()
-        self.session.delete_item('username')
+        if 'username' in self.session:
+            del self.session['username']
 
         self.redirect_to("login")

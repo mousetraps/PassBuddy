@@ -14,14 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from distutils.command.config import config
 import webapp2
 
 from myapp.views.login import *
-from myapp.views.members import *
+from myapp.views.core import *
 from myapp.views.home import *
 from myapp.views.manage import *
 from myapp.views.share import *
 from myapp.views.proxy import *
+
+config = {}
+config['webapp2_extras.sessions'] = {
+    'secret_key': 'my-super-secret-key',
+    }
 
 app = webapp2.WSGIApplication([
     webapp2.Route('/', handler=SplashHandler, name='home'),
@@ -32,4 +38,4 @@ app = webapp2.WSGIApplication([
     webapp2.Route('/table', handler=ManagedTableHandler, name='table'),
     webapp2.Route('/sharedTable', handler=SharedTableHandler, name='sharedTable'),
     webapp2.Route('/decrypt', handler=DecryptPasswordHandler, name='decrypt')
-], debug=True)
+], debug=True, config=config)

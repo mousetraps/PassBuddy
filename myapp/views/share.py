@@ -1,15 +1,19 @@
-import webapp2
 from myapp.models import *
-
-import logging
-
 from google.appengine.ext.webapp import template
-from google.appengine.ext import webapp
+from core import *
 
-import json
-from members import *
 
-# TODO MAKE THIS WORK!!!!
+class ShareHandler(LoginRequiredHandler):
+    def doGet(self, **args):
+
+        username = self.session.get('username')
+
+        template_dict = {
+            'username': username
+        }
+
+        self.response.write(template.render('templates/share.html', template_dict))
+
 class SharedTableHandler(LoginRequiredHandler):
     def doGet(self, **args):
         username = self.session.get('username')

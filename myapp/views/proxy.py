@@ -1,15 +1,5 @@
-from _codecs import decode
-import webapp2
 from myapp.models import *
-
-import logging
-
-from google.appengine.ext.webapp import template
-from google.appengine.ext import webapp
-
-import json
-from members import *
-
+from core import *
 from toolbox.decode import *
 
 class DecryptPasswordHandler(LoginRequiredHandler):
