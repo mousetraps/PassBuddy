@@ -1,0 +1,198 @@
+{% extends "_base.html" %}
+
+        {% block scripts %}
+
+        <script type="text/javascript">
+
+            $(document).ready(function() {
+
+                $(document)
+                        .ajaxStart(function(){
+                            $("#spinner").show();
+                        })
+                        .ajaxStop(function() {
+                            $("#spinner").hide();
+                        });
+
+                ReloadAccountsTable();
+
+            });
+
+            function ReloadAccountsTable() {
+                $("#managedAccountsTable").html($("#managedAccountsTable").html()).load('/table');
+            }
+
+            function addAccount()
+            {
+                var form = document.forms["addSavedAccount"];
+                var inputUrl = form["inputUrl"].value;
+                var inputPassword = form["inputPassword"].value;
+                var inputUsername = form["inputUsername"].value;
+
+                encryptedPassword = encodeURIComponent(JSON.stringify(symmetricEncrypt(inputPassword, sessionStorage.masterPassword)));
+
+                var http = new XMLHttpRequest();
+
+                var url = "/manage";
+                var params = "encrypted_password=" + encryptedPassword + "&username=" + inputUsername + "&site=" + inputUrl  + "&action=add";
+                http.open("POST", url, true);
+
+//Send the proper header information along with the request
+                http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+                http.onreadystatechange = function() {//Call a function when the state changes.
+                    if(http.readyState == 4 && http.status == 200) {
+                        ReloadAccountsTable();
+                    }
+                }
+
+                http.send(params);
+
+            }
+
+            function getPassword(key) {
+                return $.get("/manage",
+                        {
+                            "key_name": key,
+                            "action": "getPassword"
+                        })
+            }
+
+            function getPublicKey(username) {
+
+                return $.get("/manage",
+                        {
+                            "username": username,
+                            "action": "getPublicKey"
+                        }
+                );
+            }
+
+            function onGetPassword(key) {
+
+                $.when(getPassword(key)).then(function(password) {
+                    var json_response = JSON.parse(decodeURIComponent(password));
+                    console.log("symmetric decrypt: " + symmetricDecrypt(json_response, sessionStorage.masterPassword));
+                }).done();
+            }
+
+            function onUnshare(key) {
+
+                $.post("/manage",
+                        {
+                            "key": key,
+                            "action": "unshareAccount"
+                        },
+                        function () {
+                            ReloadAccountsTable();
+                        }
+                );
+
+
+            }
+
+            function onShareAccount(key) {
+
+                $("#shareFormSaveChanges")[0].onclick = function () {
+
+                    var grantee = $("#shareUsername")[0].value;
+
+                    $.when(getPassword(key), getPublicKey(grantee)).then(
+                            function(encodedPassword, packedPublic) {
+
+                                encodedPassword = encodedPassword[0];
+                                packedPublic = packedPublic[0];
+
+                                console.log(encodedPassword);
+
+                                console.log("done");
+
+                                var json_response = decodeURIComponent(encodedPassword);
+
+                                console.log(json_response);
+
+                                json_response = JSON.parse(json_response);
+
+                                console.log(symmetricDecrypt(json_response, sessionStorage.masterPassword));
+                                console.log("symmetric decrypt: " + symmetricDecrypt(json_response, sessionStorage.masterPassword));
+
+                                var password = symmetricDecrypt(json_response, sessionStorage.masterPassword);
+
+                                console.log("decrypted password: " + password);
+
+                                var publicKey = unpackPublicKey(packedPublic);
+
+                                // TODO - encapsulate aymmetric encrypt better (pass public key args)
+                                var encrPassword = asymmetricEncrypt(password, publicKey);
+
+                                $.post("/manage",
+                                        {
+                                            "grantee": grantee,
+                                            "accountKey": key,
+                                            "encrPassword": encrPassword,
+                                            "action": "shareAccount"
+                                        }
+                                );
+
+                                $("#modalShareForm").modal('hide');
+
+
+                            }).done(function() {
+                                ReloadAccountsTable();
+                                console.log("shared");
+                            });
+
+                };
+
+                $("#modalShareForm").modal('show');
+
+            }
+
+
+            function removeAccount(key)
+            {
+
+                var http = new XMLHttpRequest();
+
+                var url = "/manage";
+                var params = "key_name=" + key + "&action=remove";
+                http.open("POST", url, true);
+
+//Send the proper header information along with the request
+                http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+                http.onreadystatechange = function() {//Call a function when the state changes.
+                    if(http.readyState == 4 && http.status == 200) {
+                        ReloadAccountsTable();
+                    }
+                }
+
+                http.send(params);
+
+            }
+
+
+        </script>
+
+
+        {% endblock %}
+
+        {% block content %}
+
+
+        <h1>Your stored accounts:</h1>
+
+        <img src="/static/images/ajax-loader.gif" id="spinner" title="working...">
+
+        <div id="managedAccountsTable">
+
+        </div>
+
+        <button class="btn" data-toggle="modal" data-target="#myModal">Add Account</button>
+        <button class="btn" >Remove Account</button>
+
+        {% include "modal_manage_form.html" %}
+        {% include "modal_share_form.html" %}
+
+
+        {% endblock %}

@@ -1,0 +1,33 @@
+<table class="table">
+<thead>
+<tr>
+    <th>URL</th>
+    <th>Username</th>
+    <th>Owner</th>
+    <th>Decrypt</th>
+</tr>
+</thead>
+
+{% for shared_account in user.sharedaccount_grantee_set %}
+
+    <tr>
+        <td>
+            {{ shared_account.account.host_url }}
+        </td>
+        <td>
+            {{ shared_account.account.host_username }}
+        </td>
+
+        <td>
+            {{ shared_account.account.username }}
+        </td>
+
+        <td>
+            <a onclick="decryptPassword('{{ shared_account.key }}')">Decrypt</a>
+        </td>
+
+    </tr>
+
+{% endfor %}
+
+</table>

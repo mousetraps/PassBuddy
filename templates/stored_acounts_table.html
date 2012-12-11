@@ -1,0 +1,38 @@
+
+<table class="table">
+<thead>
+<tr>
+    <th>URL</th>
+    <th>Username</th>
+    <th>Shares</th>
+    <th>Actions</th>
+</tr>
+</thead>
+{% for account in stored_accounts %}
+
+    <tr>
+        <td>
+            {{ account.host_url }}
+        </td>
+        <td>
+            {{ account.host_username }}
+        </td>
+
+        <td>
+            {% for share in account.shares %}
+
+            <div>{{ share.grantee.username }} <a onclick="onUnshare('{{ share.key }}')">(unshare)</a></div>
+
+            {% endfor %}
+        </td>
+
+        <td>
+            <button class="btn" onclick="removeAccount('{{ account.key }}')">Remove Account</button>
+            <button class="btn" onclick="onGetPassword('{{ account.key }}')">Get Password</button>
+            <button class="btn" onclick="onShareAccount('{{ account.key }}')">Share</button>
+        </td>
+    </tr>
+
+{% endfor %}
+
+</table>
