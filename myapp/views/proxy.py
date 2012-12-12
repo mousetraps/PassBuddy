@@ -1,4 +1,4 @@
-import json, re, urlparse
+import json, re, urllib, urlparse
 
 from myapp.models import *
 from core import *
@@ -9,25 +9,12 @@ from google.appengine.api import urlfetch
 from google.appengine.ext.webapp import template
 
 
-find_re = re.compile(r'\bhref\s*=\s*("[^"]*"|\'[^\']*\'|[^"\'<>=\s]+)')
-
-def fix_urls(document, base_url):
-    ret = []
-    last_end = 0
-    for match in find_re.finditer(document):
-        url = match.group(1)
-        if url[0] in "\"'":
-            url = url.strip(url[0])
-        parsed = urlparse.urlparse(url)
-        if parsed.scheme == parsed.netloc == '': #relative to domain
-            url = urlparse.urljoin(base_url, url)
-            print url 
-            ret.append(document[last_end:match.start(1)])
-            ret.append('"%s"' % (url,))
-            last_end = match.end(1)
-    ret.append(document[last_end:])
-    return ''.join(ret)
-
+def fix_urls(document, hostname, key):
+    local_url = "http://localhost:8080/mirror?key=%s&url=%s/" % (key, urllib.quote_plus(hostname))
+    regexPattern = r'(href=["\'])/'
+    regexReplacement = r'\1%s' % local_url
+    document = re.sub(regexPattern, regexReplacement, document)
+    return document
 
 def decryptPasswordForGuest(guest_username, d, p, q, shared_account):
     p = [int(numeric_string) for numeric_string in p]
@@ -71,6 +58,8 @@ class MirrorHandler(LoginRequiredHandler):
             cookies = programmatic_login_utils.cookies_from_json(proxy_session.cookies)
             try:
                 website_content = programmatic_login_utils.visit(url_to_access, cookies)
+                website_content = unicode(website_content, errors='ignore')
+                website_content = fix_urls(website_content, str(url_to_access), str(shared_account_key))
             except(urlfetch.Error):
                 self.abort(404)
         else:
