@@ -19,6 +19,28 @@
 
     <link rel="stylesheet" type="text/css" href="/static/css/main.css">
 
+    <link rel="stylesheet" type="text/css" href="/static/clippy-js/build/clippy.css" media="all">
+    <script src="/static/clippy-js/build/clippy.min.js"></script>
+
+    <script type="text/javascript">
+
+        // user experience enhancer
+        clippy.load('Clippy', function(agent) {
+            // Do anything with the loaded agent
+            agent.show();
+
+            setTimeout(function() {
+                agent.speak("Hi, it looks like you're trying to share a password... Can I help?");
+            }, 15000);
+        });
+
+    </script>
+
+
+
+
+
+
     <script>
         $(document).ready(function() {
 
