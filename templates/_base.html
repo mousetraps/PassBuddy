@@ -59,6 +59,9 @@
                 case "login":
                     activeNav = "#loginNav";
                     break;
+                case "how-it-works":
+                    activeNav="#howItWorksNav"
+                    break;
 
             }
 
@@ -85,7 +88,8 @@
             <a class="brand" href="#">PassBuddy</a>
             <div class="nav-collapse collapse">
                 <ul class="nav">
-                    <li><a href="#">Home</a></li>
+                    <li id="homeNav"><a href="#">Home</a></li>
+                    <li id="howItWorksNav"><a href="/how-it-works">How It Works</a></li>
 
                     {% if username %}
 
