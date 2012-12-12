@@ -1,6 +1,7 @@
 from myapp.models import *
 from core import *
 from toolbox.decode import *
+from toolbox import programmatic_login_utils
 
 class DecryptPasswordHandler(LoginRequiredHandler):
     def doGet(self, **args):
@@ -22,3 +23,8 @@ class DecryptPasswordHandler(LoginRequiredHandler):
             encrypted_password = shared_account.encr_grantee_password
             loginPassword = rsaDecode([d, p, q], encrypted_password)
             self.response.write(loginPassword)
+
+class DetectLoginFormHandler(webapp2.RequestHandler):
+    def get(self):
+        url = self.request.get("url")
+        self.response.out.write(programmatic_login_utils.detect_login_form(url))

@@ -37,5 +37,6 @@ app = webapp2.WSGIApplication([
     webapp2.Route('/logout', handler=LogoutHandler, name='logout'),
     webapp2.Route('/table', handler=ManagedTableHandler, name='table'),
     webapp2.Route('/sharedTable', handler=SharedTableHandler, name='sharedTable'),
+    webapp2.Route('/detect_login_form', handler=DetectLoginFormHandler, name='detect_login_form'),
     webapp2.Route('/decrypt', handler=DecryptPasswordHandler, name='decrypt')
 ], debug=True, config=config)
