@@ -22,3 +22,8 @@ class SharedAccount(db.Model):
     # TODO - technically it shouldn't be linked, there should be a db proxy, but easier to code for now
     account = db.ReferenceProperty(StoredAccount, collection_name="shares", required=True)
     encr_grantee_password = db.StringProperty(required=True)
+
+class ProxySession(db.Model):
+    sharedAccount = db.ReferenceProperty(SharedAccount, required=True)
+    cookies = db.StringProperty(required=True)
+    

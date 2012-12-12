@@ -4,7 +4,8 @@
     <th>URL</th>
     <th>Username</th>
     <th>Owner</th>
-    <th>Decrypt</th>
+    <th></th>
+    <th></th>
 </tr>
 </thead>
 
@@ -23,9 +24,12 @@
         </td>
 
         <td>
-            <a onclick="decryptPassword('{{ shared_account.key }}')">Decrypt</a>
+            <a href="#" onclick="decryptPassword('{{ shared_account.key }}')">Decrypt</a>
         </td>
-
+         
+        <td>
+            <a href="#" onclick="loginGuest('{{ shared_account.key }}')">Log In</a>
+        </td>
     </tr>
 
 {% endfor %}
