@@ -2,6 +2,7 @@ from myapp.models import *
 import logging
 from google.appengine.ext.webapp import template
 from core import *
+import json
 
 class ManagedTableHandler(LoginRequiredHandler):
     def doGet(self, **args):
