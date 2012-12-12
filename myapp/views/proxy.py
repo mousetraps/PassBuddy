@@ -1,8 +1,33 @@
-import json
+import json, re, urlparse
+
 from myapp.models import *
 from core import *
 from toolbox.decode import *
 from toolbox import programmatic_login_utils
+from google.appengine.ext import db
+from google.appengine.api import urlfetch
+from google.appengine.ext.webapp import template
+
+
+find_re = re.compile(r'\bhref\s*=\s*("[^"]*"|\'[^\']*\'|[^"\'<>=\s]+)')
+
+def fix_urls(document, base_url):
+    ret = []
+    last_end = 0
+    for match in find_re.finditer(document):
+        url = match.group(1)
+        if url[0] in "\"'":
+            url = url.strip(url[0])
+        parsed = urlparse.urlparse(url)
+        if parsed.scheme == parsed.netloc == '': #relative to domain
+            url = urlparse.urljoin(base_url, url)
+            print url 
+            ret.append(document[last_end:match.start(1)])
+            ret.append('"%s"' % (url,))
+            last_end = match.end(1)
+    ret.append(document[last_end:])
+    return ''.join(ret)
+
 
 def decryptPasswordForGuest(guest_username, d, p, q, shared_account):
     p = [int(numeric_string) for numeric_string in p]
@@ -35,22 +60,24 @@ class DecryptPasswordHandler(LoginRequiredHandler):
 class MirrorHandler(LoginRequiredHandler):
     def doGet(self, **args):
         cookies = []
-        shared_url = self.request.get("url")
 
-        have_cookies = False #TODO: check in database
-        if have_cookies:
-           #get the cookies
-           ""
+        shared_account_key = self.request.get("key")
+        shared_account = db.get(shared_account_key)
+        url_to_access = self.request.get("url")
+
+        q = db.GqlQuery("SELECT * FROM ProxySession where sharedAccount = :1", shared_account)
+        proxy_session = q.get()
+        if proxy_session:
+            cookies = programmatic_login_utils.cookies_from_json(proxy_session.cookies)
+            try:
+                website_content = programmatic_login_utils.visit(url_to_access, cookies)
+            except(urlfetch.Error):
+                self.abort(404)
         else:
-           # redirect to share page
+            pass
+            # redirect to share page
+        self.response.write(template.render('templates/mirror.html', {'website_content': website_content, 'username':self.session.get("username")}));
 
-           #store the cookies
-        try:
-            website_content = programmatic_login_utils.visit(url, cookies)
-        except(urlfetch.Error):
-            self.abort(404)
-        
-        self.response.write(template.render('templates/mirror.html', {'website_content', website_content}));
 
 class LoginGuestHandler(LoginRequiredHandler):
     def doPost(self, **args):
@@ -70,15 +97,13 @@ class LoginGuestHandler(LoginRequiredHandler):
 
         shared_username = shared_account.account.host_username
         shared_password = decryptPasswordForGuest(current_username, d, p, q, shared_account)
-
-        have_cookies = False # TODO: check in the database
-        if not have_cookies:
-           shared_url_cookies = programmatic_login_utils.login(shared_login_url, shared_username, shared_password)
-           # TODO: get this working
-           #print type(shared_url_cookies[0]).__name__
-           #shared_url_cookies_str = json.dumps(shared_url_cookies)
-           
-           #proxy_session = ProxySession(sharedAccount = shared_account, cookies = shared_url_cookies_str)
-           #proxy_session.put()         
-        self.response.write(shared_url)
         
+        q = db.GqlQuery("SELECT * FROM ProxySession where sharedAccount = :1", shared_account)
+        proxy_session = q.get()
+        if not proxy_session:
+           shared_url_cookies = programmatic_login_utils.login(shared_login_url, shared_username, shared_password)
+           shared_url_cookies_json = programmatic_login_utils.json_from_cookies(shared_url_cookies)
+           
+           proxy_session = ProxySession(sharedAccount = shared_account, cookies = shared_url_cookies_json)
+           proxy_session.put()         
+        self.response.write(shared_url)

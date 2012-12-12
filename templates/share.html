@@ -62,7 +62,7 @@
                                 "d[]": privateKey.d
                             });
                 })).done(function(msg) {
-                    alert(msg);
+                    window.location.href = "http:\\\\" + window.location.host + "/mirror?url=" + encodeURIComponent(msg) + "&key=" + encodeURIComponent(key);
                 });
 
             }

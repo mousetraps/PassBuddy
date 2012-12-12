@@ -25,5 +25,5 @@ class SharedAccount(db.Model):
 
 class ProxySession(db.Model):
     sharedAccount = db.ReferenceProperty(SharedAccount, required=True)
-    cookies = db.StringProperty(required=True)
+    cookies = db.TextProperty(required=True)
     

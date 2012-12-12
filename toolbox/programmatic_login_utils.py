@@ -13,6 +13,18 @@
 from HTMLParser import HTMLParser
 from urllib import urlencode
 import urllib2, json
+import json, cookielib
+
+def json_from_cookies(cookies):
+    return json.dumps([{"version": c.version, "name": c.name, "value": c.value, "port": c.port, "domain": c.domain, "path": c.path, "secure": c.secure, "expires": c.expires, "discard": c.discard, "comment": c.comment, "comment_url": c.comment_url, "rfc2109": c.rfc2109, "port_specified": c.port_specified, "path_specified": c.port_specified, "domain_specified": c.domain_specified, "domain_initial_dot": c.domain_initial_dot} for c in cookies])
+
+def cookies_from_json(jcookies):
+    cookies = []
+    jcookies = json.loads(jcookies)
+    for jcookie in jcookies:
+        cookie = cookielib.Cookie(jcookie["version"], jcookie["name"], jcookie["value"], jcookie["port"], jcookie["port_specified"], jcookie["domain"], jcookie["domain_specified"], jcookie["domain_initial_dot"], jcookie["path"], jcookie["path_specified"], jcookie["secure"], jcookie["expires"], jcookie["discard"], jcookie["comment"], jcookie["comment_url"], "", jcookie["rfc2109"])
+        cookies.append(cookie)
+    return cookies
 
 class PasswordFieldFinderHTMLParser(HTMLParser):
     form_tags = []
