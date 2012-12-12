@@ -1,12 +1,18 @@
 {% extends "_base.html" %}
 {% block scripts %}
    <style type="text/css">
-       .container.main{
+       #websitecontent{
             margin-top:40px;
         }
    </style>
 {% endblock %}
 
 {% block content %}
-    {{website_content|safe}}    
+
+    <div style="background-color:red; padding:1em; color:white;">NOTE: YOUR ACTIONS ON THIS SITE ARE BEING LOGGED.</div>
+
+    <div id="websitecontent">
+
+    {{website_content|safe}}
+    </div>
 {% endblock %}
