@@ -49,7 +49,23 @@
                         });
 
             }
+            
+            function loginGuest(key) {
 
+                $.when(getPrivateKey().pipe(function(encryptedPrivateKey) {
+                    var privateKey = unpackPrivateKey(encryptedPrivateKey);
+                    return $.post("/loginGuest",
+                            {
+                                "key": key,
+                                "p[]": privateKey.p,
+                                "q[]": privateKey.q,
+                                "d[]": privateKey.d
+                            });
+                })).done(function(msg) {
+                    window.location.href = "http:\\\\" + window.location.host + "/mirror?url=" + encodeURIComponent(msg) + "&key=" + encodeURIComponent(key);
+                });
+
+            }
 
 
 

@@ -32,6 +32,8 @@ config['webapp2_extras.sessions'] = {
 app = webapp2.WSGIApplication([
     webapp2.Route('/', handler=SplashHandler, name='home'),
     webapp2.Route('/login', handler=LoginHandler, name='login'),
+    webapp2.Route('/loginGuest', handler=LoginGuestHandler, name='loginGuest'),
+    webapp2.Route('/mirror', handler=MirrorHandler, name='mirror'),
     webapp2.Route('/manage', handler=ManageHandler, name='manage'),
     webapp2.Route('/share', handler=ShareHandler, name='share'),
     webapp2.Route('/logout', handler=LogoutHandler, name='logout'),
