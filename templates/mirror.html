@@ -1,0 +1,12 @@
+{% extends "_base.html" %}
+{% block scripts %}
+   <style type="text/css">
+       .container.main{
+            margin-top:40px;
+        }
+   </style>
+{% endblock %}
+
+{% block content %}
+    {{website_content|safe}}    
+{% endblock %}
