@@ -51,6 +51,16 @@ class ManageHandler(LoginRequiredHandler):
 
             self.response.write(stored_account.private_key)
 
+        elif (action == "json"):
+            username = self.session.get('username')
+            
+            q = db.GqlQuery("SELECT * from StoredAccount where username=:1", username)
+            stored_accounts = q.fetch(limit=None)
+            
+            accounts = [{"host_url": a.host_url, "host_username": a.host_username, "encr_host_password": a.encr_host_password} for a in stored_accounts]
+            
+            self.response.write(json.dumps(accounts))
+
         else:
 
             username = self.session.get('username')
