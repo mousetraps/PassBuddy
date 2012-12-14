@@ -100,7 +100,7 @@ class MirrorHandler(LoginRequiredHandler):
             try:
                 website_content = programmatic_login_utils.visit(url_to_access, cookies)
                 website_content = unicode(website_content, errors='ignore')
-                website_content = programmatic_login_utils.proxify_html(website_content, str(url_to_access), str(shared_account_key))
+                website_content = proxify_html(website_content, str(url_to_access), str(shared_account_key))
             except(urlfetch.Error):
                 self.abort(404)
         else:
