@@ -12,7 +12,7 @@
 
 from HTMLParser import HTMLParser
 from urllib import urlencode
-import urllib2, json
+import urllib2
 import json, cookielib
 
 def json_from_cookies(cookies):

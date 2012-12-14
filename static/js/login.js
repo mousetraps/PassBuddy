@@ -22,7 +22,7 @@ function getKeyPair(message) {
 
 
     // TODO - fuck.. code dup
-    sessionStorage.masterPassword = getFormPassword();
+    sessionStorage.setItem("masterPassword", getFormPassword());
 
 
     console.log( "got random string: " + message );
@@ -77,6 +77,7 @@ function onLoginSubmit() {
         function(salt) {
             var username = getFormUsername();
             var masterPassword = getFormPassword();
+	    sessionStorage.setItem("masterPassword", masterPassword);
 
             var password = hashMasterPassword(masterPassword + salt);
 

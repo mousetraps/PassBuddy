@@ -40,7 +40,7 @@ function packPublicKey(publicKey) {
 function packPrivateKey(privateKey) {
 
     var string_private = JSON.stringify(privateKey);
-    var encr_string_private = symmetricEncrypt(string_private, sessionStorage.masterPassword);
+    var encr_string_private = symmetricEncrypt(string_private, sessionStorage.getItem("masterPassword"));
     var safe_encr_private = encodeURIComponent(encr_string_private);
 
     return safe_encr_private;
@@ -62,7 +62,7 @@ function unpackPrivateKey(privateKey) {
 
 
     var encr_string_private = decodeURIComponent(privateKey);
-    var string_private = symmetricDecrypt(encr_string_private, sessionStorage.masterPassword);
+    var string_private = symmetricDecrypt(encr_string_private, sessionStorage.getItem("masterPassword"));
     var json_private = JSON.parse(string_private);
 
     return json_private;

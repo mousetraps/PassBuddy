@@ -29,7 +29,7 @@
                 var inputPassword = form["inputPassword"].value;
                 var inputUsername = form["inputUsername"].value;
 
-                encryptedPassword = encodeURIComponent(JSON.stringify(symmetricEncrypt(inputPassword, sessionStorage.masterPassword)));
+                encryptedPassword = encodeURIComponent(JSON.stringify(symmetricEncrypt(inputPassword, sessionStorage.getItem("masterPassword"))));
 
                 var http = new XMLHttpRequest();
 
@@ -72,7 +72,7 @@
 
                 $.when(getPassword(key)).then(function(password) {
                     var json_response = JSON.parse(decodeURIComponent(password));
-                    console.log("symmetric decrypt: " + symmetricDecrypt(json_response, sessionStorage.masterPassword));
+                    console.log("symmetric decrypt: " + symmetricDecrypt(json_response, sessionStorage.getItem("masterPassword")));
                 }).done();
             }
 
@@ -113,10 +113,10 @@
 
                                 json_response = JSON.parse(json_response);
 
-                                console.log(symmetricDecrypt(json_response, sessionStorage.masterPassword));
-                                console.log("symmetric decrypt: " + symmetricDecrypt(json_response, sessionStorage.masterPassword));
+                                console.log(symmetricDecrypt(json_response, sessionStorage.getItem("masterPassword")));
+                                console.log("symmetric decrypt: " + symmetricDecrypt(json_response, sessionStorage.getItem("masterPassword")));
 
-                                var password = symmetricDecrypt(json_response, sessionStorage.masterPassword);
+                                var password = symmetricDecrypt(json_response, sessionStorage.getItem("masterPassword"));
 
                                 console.log("decrypted password: " + password);
 
