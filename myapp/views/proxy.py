@@ -1,4 +1,4 @@
-import json, re, urllib, urlparse, sys, datetime
+import json, re, urllib, urlparse, datetime
 
 from myapp.models import *
 from core import *
@@ -21,7 +21,7 @@ def fix_url(href, current_url, root_url, shared_account_key):
         url = href
     else:  # relative url
         url = current_url + href  # don't worry about use of '..', for simplicity
-    return '/mirror?key=' + shared_account_key + '&url=' + quote_plus(url)
+    return '/mirror?key=' + shared_account_key + '&url=' + urllib.quote_plus(url)
 
 def proxify_html(html, url, key):
     current_url = url
@@ -29,9 +29,6 @@ def proxify_html(html, url, key):
         current_url = 'http://' + current_url
     root_end = current_url.find('/', current_url.find('//') + 2)
     root_url = current_url[0:root_end] if root_end != -1 else current_url
-    sys.stderr.write("original current_url: " + url + "\n")
-    sys.stderr.write("current_url: " + current_url + "\n")
-    sys.stderr.write("root_url: " + root_url + "\n")
     def fix_url_wrapper(match):
         return match.group(1) + '="' + fix_url(match.group(2), current_url, root_url, key) + '"'
     regexPattern = r'(<a[^>]*href|<form[^>]*action)="([^"]*)'
@@ -55,7 +52,6 @@ def deleteOldLogRecords(shared_account):
     LAST_WEEK = datetime.datetime.now() - datetime.timedelta(days=7)
     q = db.GqlQuery("SELECT * FROM LogRecord where shared_account = :1 and timestamp < :2", shared_account, LAST_WEEK)
     old_records = q.fetch(limit=None)
-    sys.stderr.write("Number of old records: " + str(len(old_records)) + "\n")
     for old_record in old_records:
         db.delete(old_record)
 
