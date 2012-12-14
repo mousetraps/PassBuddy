@@ -4,6 +4,7 @@ class User(db.Model):
     username = db.StringProperty(required=True)
     password = db.StringProperty(required=True) # H(salt + H(pw))
     salt = db.StringProperty(required=True)
+    encr_salt = db.TextProperty(required=True)
 
     public_key = db.StringProperty(required=True) # encr(json.stringify({p, q, d}), MP)
     private_key = db.StringProperty(required=True) # encr(json.stringify({pq, e}), MP)

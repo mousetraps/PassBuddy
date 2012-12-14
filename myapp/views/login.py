@@ -9,7 +9,21 @@ from core import *
 class LoginHandler(BaseHandler):
     def get(self):
 
-        self.response.write(template.render('templates/login.html', {}))
+        action = self.request.get('action')
+
+        if action and action == "getSalt":
+            username = self.request.get('username')
+
+            q = db.GqlQuery("SELECT * FROM User where username=:1", username)
+            user = q.get()
+
+            # TODO - error if user doesn't exist
+
+            self.response.write(user.encr_salt)
+
+        else:
+
+            self.response.write(template.render('templates/login.html', {}))
 
     def post(self):
 
@@ -27,12 +41,13 @@ class LoginHandler(BaseHandler):
 
             public_key = self.request.get('publicKey')
             private_key = self.request.get('privateKey')
+            encr_salt = self.request.get('encryptedSalt')
 
             salt = base64.b64encode(os.urandom(24)) # salt bytes = 24
             hashed_password = hashlib.sha256(salt + pwd).hexdigest()
 
             new_user = User(username=account, password=hashed_password, salt=salt,
-                public_key=public_key, private_key=private_key)
+                public_key=public_key, private_key=private_key, encr_salt=encr_salt)
 
             new_user.put()
 

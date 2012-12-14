@@ -3,7 +3,7 @@ function getRandom() {
 
     $.ajax({
         type: "GET",
-        url: "http://www.random.org/cgi-bin/randbyte",
+        url: "https://www.random.org/cgi-bin/randbyte",
         data: "nbytes=1024&format=hex",
         success: function(message){
             console.log("got random");
@@ -22,8 +22,7 @@ function getKeyPair(message) {
 
 
     // TODO - fuck.. code dup
-    var password = $("#loginForm input[name=password]")[0].value;
-    sessionStorage.masterPassword = password;
+    sessionStorage.masterPassword = getFormPassword();
 
 
     console.log( "got random string: " + message );
@@ -40,53 +39,100 @@ function getKeyPair(message) {
 
 }
 
+function getFormUsername() {
+    return $("#loginForm").find("input[name=account]")[0].value;
+}
 
-function submitLoginCredentials(publicKey, privateKey){
-    return $.Deferred(function( dfd ) {
-
-        var form = $("#loginForm");
-
-
-        var password = form.find("input[name=password]")[0].value;
-        var account = form.find("input[name=account]")[0].value;
-
-        var hashedPassword = hashMasterPassword(password);
-
-        // TODO - check whether sessionStorage is secure... another idea is to do something with variable scope
-        sessionStorage.masterPassword = password;
-        form.value = hashedPassword;
-
-        console.log("local password: " + sessionStorage.masterPassword);
-        console.log("hashed password: " + hashedPassword);
+function getFormPassword() {
+    return $("#loginForm").find("input[name=password]")[0].value;
+}
 
 
-        console.log(publicKey + " " + privateKey);
-        $.post("/login",
-            {
-                'account': account,
-                'password': password,
-                'publicKey': publicKey,
-                'privateKey': privateKey
+function getSalt() {
 
-            },
-            function(data) {
+    var username = getFormUsername();
 
-                // TODO - refactor this out into deferred function
-                // TODO - send redirect form handler instead
-                console.log("redirecting to manage");
-                window.location = "/manage";
+    return $.get("/login",
+        {
+            "username": username,
+            "action": "getSalt"
+        }
+    );
+}
 
-                dfd.resolve();
+function decryptSalt(encryptedSalt) {
+    var dfd = $.Deferred();
 
-            }
-        );
+    var masterPassword = getFormPassword();
+    var salt = symmetricDecrypt(JSON.parse(decodeURIComponent(encryptedSalt)), masterPassword);
 
-
-    }).promise();
-
+    dfd.resolve(salt);
+    return dfd.promise();
 }
 
 function onLoginSubmit() {
 
-    getRandom().pipe(getKeyPair).pipe(submitLoginCredentials).done();
+
+    getSalt().pipe(decryptSalt).pipe(
+        function(salt) {
+            var username = getFormUsername();
+            var masterPassword = getFormPassword();
+
+            var password = hashMasterPassword(masterPassword + salt);
+
+            $.post("/login",
+                {
+                    'account': username,
+                    'password': password
+                },
+                function(data) {
+
+                    // TODO - refactor this out into deferred function
+                    // TODO - send redirect form handler instead
+                    console.log("redirecting to manage");
+                    window.location = "/manage";
+
+                }
+            );
+        }).done();
+}
+
+function onRegisterSubmit() {
+
+    $.when(getRandom().pipe(getKeyPair), getRandom()).then(
+
+        function(keyPair, salt) {
+
+            // TODO: this isn't maintainable...
+            var publicKey = keyPair[0];
+            var privateKey = keyPair[1];
+
+            var username = getFormUsername();
+
+            var masterPassword = getFormPassword();
+
+            var password = hashMasterPassword(masterPassword + salt);
+            var encryptedSalt = encodeURIComponent(JSON.stringify(symmetricEncrypt(salt, masterPassword)));
+
+            $.post("/login",
+                {
+                    'account': username,
+                    'password': password,
+                    'publicKey': publicKey,
+                    'privateKey': privateKey,
+                    'encryptedSalt': encryptedSalt
+
+                },
+                function(data) {
+
+                    // TODO - refactor this out into deferred function
+                    // TODO - send redirect form handler instead
+                    console.log("redirecting to manage");
+                    window.location = "/manage";
+
+                }
+            );
+        }
+    ).done();
+
 }

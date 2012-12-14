@@ -1,7 +1,7 @@
 // TODO - any way to link js files? this depends on crypto.js, cryptoHelper.js, cryptojs-sha256
 
 function hashMasterPassword(masterPassword) {
-    return CryptoJS.SHA256(masterPassword);
+    return CryptoJS.SHA256(masterPassword).toString(CryptoJS.enc.Hex);
 }
 
 // TODO - this is hideous, fix it later :)
