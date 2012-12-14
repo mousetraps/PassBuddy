@@ -1,4 +1,4 @@
-import json, re, urllib, urlparse
+import json, re, urllib, urlparse, sys, datetime
 
 from myapp.models import *
 from core import *
@@ -7,6 +7,7 @@ from toolbox import programmatic_login_utils
 from google.appengine.ext import db
 from google.appengine.api import urlfetch
 from google.appengine.ext.webapp import template
+
 
 
 def fix_urls(document, hostname, key):
@@ -27,6 +28,14 @@ def decryptPasswordForGuest(guest_username, d, p, q, shared_account):
 	encrypted_shared_password = shared_account.encr_grantee_password
 	shared_password = rsaDecode([d, p, q], encrypted_shared_password)
     return shared_password
+
+def deleteOldLogRecords(shared_account):
+    LAST_WEEK = datetime.datetime.now() - datetime.timedelta(days=7)
+    q = db.GqlQuery("SELECT * FROM LogRecord where shared_account = :1 and timestamp < :2", shared_account, LAST_WEEK)
+    old_records = q.fetch(limit=None)
+    sys.stderr.write("Number of old records: " + str(len(old_records)) + "\n")
+    for old_record in old_records:
+        db.delete(old_record)
 
 
 class DecryptPasswordHandler(LoginRequiredHandler):
@@ -55,6 +64,16 @@ class MirrorHandler(LoginRequiredHandler):
         q = db.GqlQuery("SELECT * FROM ProxySession where sharedAccount = :1", shared_account)
         proxy_session = q.get()
         if proxy_session:
+
+            # Log the request. For now just log the url accessed; in
+            # the future if we handled form submissions etc., could
+            # also log post data if we encrypted it with the granter's
+            # public key..
+            log_record = LogRecord(shared_account=shared_account, record=url_to_access)
+            log_record.put()
+            deleteOldLogRecords(shared_account)
+            ##
+
             cookies = programmatic_login_utils.cookies_from_json(proxy_session.cookies)
             try:
                 website_content = programmatic_login_utils.visit(url_to_access, cookies)
@@ -89,6 +108,11 @@ class LoginGuestHandler(LoginRequiredHandler):
         
         q = db.GqlQuery("SELECT * FROM ProxySession where sharedAccount = :1", shared_account)
         proxy_session = q.get()
+        # Log the login attempt, even if we already have cookies.
+        log_record = LogRecord(shared_account=shared_account, record="LOGIN")
+        log_record.put()
+        deleteOldLogRecords(shared_account)
+        ##
         if not proxy_session:
            shared_url_cookies = programmatic_login_utils.login(shared_login_url, shared_username, shared_password)
            shared_url_cookies_json = programmatic_login_utils.json_from_cookies(shared_url_cookies)

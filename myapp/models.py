@@ -27,3 +27,7 @@ class ProxySession(db.Model):
     sharedAccount = db.ReferenceProperty(SharedAccount, required=True)
     cookies = db.TextProperty(required=True)
     
+class LogRecord(db.Model):
+    shared_account = db.ReferenceProperty(SharedAccount, required=True)
+    record = db.TextProperty(required=True)
+    timestamp = db.DateTimeProperty(auto_now_add=True)
