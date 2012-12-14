@@ -14,3 +14,9 @@ indexes:
   properties:
   - name: shared_account
   - name: timestamp
+
+- kind: LogRecord
+  properties:
+  - name: shared_account
+  - name: timestamp
+    direction: desc

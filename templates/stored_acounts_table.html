@@ -21,7 +21,7 @@
         <td>
             {% for share in account.shares %}
 
-            <div>{{ share.grantee.username }} <a onclick="onUnshare('{{ share.key }}')">(unshare)</a></div>
+            <div>{{ share.grantee.username }} <a onclick="onUnshare('{{ share.key }}')">(unshare)</a> <a onclick="viewLogs('{{ share.key }}')">(logs)</a></div>
 
             {% endfor %}
         </td>

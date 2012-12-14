@@ -47,7 +47,7 @@
                 }
 
                 http.send(params);
-
+	        $("#myModal").modal('hide');	    
             }
 
             function getPassword(key) {
@@ -171,6 +171,10 @@
 
             }
 
+            function viewLogs(key) {
+	         $("#logsModal").html($("#logsModal").html()).load('/logs?key=' + key);	         
+	         $("#logsModal").modal('show');
+             }
 
         </script>
 
@@ -189,10 +193,12 @@
         </div>
 
         <button class="btn" data-toggle="modal" data-target="#myModal">Add Account</button>
-        <button class="btn" >Remove Account</button>
 
         {% include "modal_manage_form.html" %}
         {% include "modal_share_form.html" %}
 
+	<div class="modal hide fade" id="logsModal">
+
+	</div>
 
         {% endblock %}

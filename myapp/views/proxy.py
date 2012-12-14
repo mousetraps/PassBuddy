@@ -125,3 +125,19 @@ class DetectLoginFormHandler(webapp2.RequestHandler):
     def get(self):
         url = self.request.get("url")
         self.response.out.write(programmatic_login_utils.detect_login_form(url))
+
+class LogsHandler(LoginRequiredHandler):
+    def get(self):
+        shared_account_key = self.request.get("key")
+        shared_account = db.get(shared_account_key)
+        q = db.GqlQuery("SELECT * from LogRecord where shared_account=:1 ORDER BY timestamp DESC", shared_account)
+        log_records = q.fetch(limit=None)
+        
+        template_dict = {
+            'grantee': shared_account.grantee.username,
+            'host_url': shared_account.account.host_url,
+            'host_username': shared_account.account.host_username,
+            'log_records': log_records
+        }
+
+        self.response.write(template.render("templates/modal_logs.html", template_dict ))
