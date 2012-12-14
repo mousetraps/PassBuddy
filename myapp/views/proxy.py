@@ -10,12 +10,34 @@ from google.appengine.ext.webapp import template
 
 
 
-def fix_urls(document, hostname, key):
-    local_url = "http://localhost:8080/mirror?key=%s&url=%s/" % (key, urllib.quote_plus(hostname))
-    regexPattern = r'(href=["\'])/'
-    regexReplacement = r'\1%s' % local_url
-    document = re.sub(regexPattern, regexReplacement, document)
-    return document
+def fix_url(href, current_url, root_url, shared_account_key):
+    if href == "":
+        url = current_url
+    elif href[0] == '#':  # page anchor
+        url = current_url + href
+    elif href[0] == '/':  # root-relative url
+        url = root_url + href
+    elif href.find('://') != -1:  # fully qualified url
+        url = href
+    else:  # relative url
+        url = current_url + href  # don't worry about use of '..', for simplicity
+    return '/mirror?key=' + shared_account_key + '&url=' + quote_plus(url)
+
+def proxify_html(html, url, key):
+    current_url = url
+    if current_url.find('://') == -1:
+        current_url = 'http://' + current_url
+    root_end = current_url.find('/', current_url.find('//') + 2)
+    root_url = current_url[0:root_end] if root_end != -1 else current_url
+    sys.stderr.write("original current_url: " + url + "\n")
+    sys.stderr.write("current_url: " + current_url + "\n")
+    sys.stderr.write("root_url: " + root_url + "\n")
+    def fix_url_wrapper(match):
+        return match.group(1) + '="' + fix_url(match.group(2), current_url, root_url, key) + '"'
+    regexPattern = r'(<a[^>]*href|<form[^>]*action)="([^"]*)'
+    regexReplacement = fix_url_wrapper
+    html = re.sub(regexPattern, regexReplacement, html)
+    return html
 
 def decryptPasswordForGuest(guest_username, d, p, q, shared_account):
     p = [int(numeric_string) for numeric_string in p]
@@ -78,7 +100,7 @@ class MirrorHandler(LoginRequiredHandler):
             try:
                 website_content = programmatic_login_utils.visit(url_to_access, cookies)
                 website_content = unicode(website_content, errors='ignore')
-                website_content = fix_urls(website_content, str(url_to_access), str(shared_account_key))
+                website_content = programmatic_login_utils.proxify_html(website_content, str(url_to_access), str(shared_account_key))
             except(urlfetch.Error):
                 self.abort(404)
         else:
