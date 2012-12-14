@@ -20,7 +20,7 @@ def fix_url(href, current_url, root_url, shared_account_key):
     elif href.find('://') != -1:  # fully qualified url
         url = href
     else:  # relative url
-        url = current_url + href  # don't worry about use of '..', for simplicity
+        url = current_url + ('/' if current_url[-1] != '/' else '') + href  # don't worry about use of '..', for simplicity
     return '/mirror?key=' + shared_account_key + '&url=' + urllib.quote_plus(url)
 
 def proxify_html(html, url, key):
