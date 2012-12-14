@@ -2,14 +2,20 @@
 {% block scripts %}
    <style type="text/css">
        #websitecontent{
-            margin-top:20px;
+            margin-top:50px;
         }
    </style>
 {% endblock %}
 
+{%  block notification %}
+    <div class="label label-important affix" style="background-color: #8b0000; padding:1em; color:white; width:100%; border-radius:0">
+        <div class="container">IMPORTANT: Your actions on this site are being logged.</div>
+    </div>
+
+{% endblock %}
+
 {% block content %}
 
-    <div style="background-color:red; padding:1em; color:white; margin-top:60px">NOTE: YOUR ACTIONS ON THIS SITE ARE BEING LOGGED.</div>
 
     <div id="websitecontent">
 
