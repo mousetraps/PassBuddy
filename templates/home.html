@@ -1,2 +1,29 @@
 {% extends "_base.html" %}
         {% block title %}Home{% endblock %}
+
+{% block scripts %}
+
+        <style>
+        body {
+            background-color:white;
+        }
+        </style>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="hero-unit clearfix pagination-centered">
+        <h1>Secure Password Sharing</h1>
+        <p style="margin-top:12px">Shared family accounts? Office-wide passwords? Significant other worried you don't love them because you
+        won't give them your passwords? We've got your back.</p>
+
+        <div class="control-group pagination-centered" style="margin-top:25px">
+
+            <a class="btn-large btn" href="/how-it-works">Learn More</a>
+        <a class="btn btn-large btn-primary" href="/login">Get Started</a>
+
+        </div>
+    </div>
+
+{% endblock %}
