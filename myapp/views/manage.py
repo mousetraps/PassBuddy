@@ -103,6 +103,10 @@ class ManageHandler(LoginRequiredHandler):
             # stored_account = db.get(27)
             if (stored_account.username == username):
                 db.delete(stored_account)
+                q = db.GqlQuery("SELECT * from SharedAccount where account=:1", stored_account)
+                shared_accounts = q.fetch(limit=None)
+                for shared_account in shared_accounts:
+                    db.delete(shared_account)
             else:
                 # TODO - error
                 pass
