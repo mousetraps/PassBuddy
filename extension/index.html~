@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="resources/jquery-ui.css" />
+    <script type="text/javascript" src="resources/jquery.min.js"></script>
+    <script type="text/javascript" src="resources/jquery-ui.js"></script>
+    <script type="text/javascript" src="resources/jquery.json-2.3.min.js"></script>
+    <script type="text/javascript" src="resources/sjcl.js"></script>
+    <script type="text/javascript" src="resources/cryptojs/rollups/sha256.js"></script>
+    <script type="text/javascript" src="globals.js"></script>
+    <script type="text/javascript" src="content.js"></script>
+    <script type="text/javascript" src="login.js"></script>
+  </head>
+  <body>
+    <!-- error messages -->
+    <div id="error"></div>
+
+    <!-- login and registration -->
+    <div id="logindiv">
+      <p>You must login to use PassBuddy. If you do not have one, visit <a href="https://passbuddy.appspot.com/">passbuddy.appspot.com</a> to register for one.</p>
+      <label for="login_username">Username</label>
+      <input type="text" id="login_username" /><br/>
+      <label for="login_mp">Password</label>
+      <input type="password" id="login_mp" /><br/>
+      <button id="login_submit">Login</button>
+    </div>
+
+    <!-- normal app use -->
+    <div id="contentdiv">
+      <div id="greetingdiv"></div>
+      <div id="fillpwdiv">
+	<button id="fillpwbutton">Fill password on current page</button>
+      </div>
+    </div>
+    <div id="logoutdiv">
+      <button id="logout">Logout</button>
+    </div>
+  </body>
+</html>

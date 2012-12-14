@@ -1,0 +1,9 @@
+p, label {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+div#contentdiv {
+    display: none;
+    border: 1px solid black;
+}

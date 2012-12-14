@@ -1,0 +1,18 @@
+{
+  "name": "PassBuddy",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "Temporarily securely share accounts with friends",
+  "browser_action": {
+    "default_popup": "index.html"
+  },
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "permissions": [
+    "tabs",
+    "cookies",
+    "https://passbuddy.appspot.com/"
+  ]
+}

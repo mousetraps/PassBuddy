@@ -1,0 +1,37 @@
+var SERVER_URL_HTTPS = chrome.extension.getBackgroundPage().SERVER_URL_HTTPS;
+var LOGIN_COOKIE_NAME = chrome.extension.getBackgroundPage().LOGIN_COOKIE_NAME;
+
+function mphash(mp) {
+    return CryptoJS.SHA256(mp);
+}
+
+function decrypt(ciphertext, key) {
+    console.log("decrypt called on " + ciphertext + ", " + key);
+    var res = sjcl.decrypt(key, ciphertext);
+    console.log(res);
+    return res;
+}
+
+function encrypt(message, key) {
+    console.log("encrypt called on " + message + ", " + key);
+    var res = sjcl.encrypt(key, message);
+    console.log(res);
+    return res;
+}
+
+$(function() {
+	if(localStorage.getItem("username") != null) {
+	    successfulLogin(localStorage.getItem("username"), localStorage.getItem("master_password"));
+	}
+
+	$("button#logout").click(function() {
+		localStorage.removeItem("username");
+		localStorage.removeItem("master_password");
+		window.close();
+	    });
+	
+	$("button#fillpwbutton").click(function() {
+		console.log("fillpw button clicked");
+		fillPasswordWrapper();
+	    });
+    });
